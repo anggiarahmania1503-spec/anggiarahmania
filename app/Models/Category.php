@@ -101,4 +101,4 @@ class Category extends Model
         }
         return asset('images/category-placeholder.png');
     }
-}
+} 
