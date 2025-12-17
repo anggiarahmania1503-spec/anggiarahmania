@@ -20,3 +20,7 @@ Route::get('/sapa/{nama?}', function ($nama = 'semua') {
     // ↑ "$nama" = Variable interpolation (masukkan nilai $nama ke string)
 });
 
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
