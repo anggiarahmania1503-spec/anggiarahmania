@@ -14,7 +14,7 @@
             <img id="avatar-preview"
                  class="rounded-circle object-fit-cover border"
                  style="width: 100px; height: 100px;"
-                 src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png') }}"
+                 src="{{ $user->avatar ? asset('storage/avatars/' . $user->avatar) : asset('images/default-avatar.png') }}"
                  alt="{{ $user->name }}">
 
             @if($user->avatar)
