@@ -1,7 +1,12 @@
-@extends('layouts.app')
+@extends('components.app')
 
 @section('title', 'Katalog Produk')
-
+<style>
+    .pagination .page-link {
+        font-size: 13px;
+        padding: 4px 8px;
+    }
+</style>
 @section('content')
 <div class="container py-4">
     <div class="row">
@@ -137,14 +142,14 @@
                 <div class="row g-4">
                     @foreach($products as $product)
                         <div class="col-6 col-md-4">
-                            @include('partials.product-card', ['product' => $product])
+                            @include('profile.partials.product-card', ['product' => $product])
                         </div>
                     @endforeach
                 </div>
 
                 {{-- Pagination --}}
                 <div class="d-flex justify-content-center mt-5">
-                    {{ $products->links() }}
+                    {{ $products->links('pagination::bootstrap-5') }}
                 </div>
             @else
                 <div class="text-center py-5">
