@@ -18,10 +18,6 @@ class ProductObserver
         Cache::forget('category_' . $product->category_id . '_products');
 
         // Log activity
-        activity()
-            ->performedOn($product)
-            ->causedBy(auth()->user())
-            ->log('Produk baru dibuat: ' . $product->name);
     }
 
     /**

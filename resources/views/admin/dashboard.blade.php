@@ -19,7 +19,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <p class="text-muted mb-1">Total Pendapatan</p>
-                            <h4 class="mb-0">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</h4>
+                            <h4 class="mb-0">Rp {{ number_format($stats['totalRevenue'], 0, ',', '.') }}</h4>
                         </div>
                         <div class="bg-success bg-opacity-10 rounded p-3">
                             <i class="bi bi-currency-dollar text-success fs-4"></i>
@@ -35,7 +35,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <p class="text-muted mb-1">Total Pesanan</p>
-                            <h4 class="mb-0">{{ $stats['total_orders'] }}</h4>
+                            <h4 class="mb-0">{{ $stats['totalOrders'] }}</h4>
                         </div>
                         <div class="bg-primary bg-opacity-10 rounded p-3">
                             <i class="bi bi-bag text-primary fs-4"></i>
@@ -51,7 +51,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <p class="text-muted mb-1">Perlu Diproses</p>
-                            <h4 class="mb-0">{{ $stats['pending_orders'] }}</h4>
+                            <h4 class="mb-0">{{ $stats['pendingOrders'] }}</h4>
                         </div>
                         <div class="bg-warning bg-opacity-10 rounded p-3">
                             <i class="bi bi-clock text-warning fs-4"></i>
@@ -67,7 +67,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <p class="text-muted mb-1">Stok Menipis</p>
-                            <h4 class="mb-0">{{ $stats['low_stock'] }}</h4>
+                            <h4 class="mb-0">{{ $stats['lowStockProducts'] }}</h4>
                         </div>
                         <div class="bg-danger bg-opacity-10 rounded p-3">
                             <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
@@ -101,7 +101,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($recentOrders as $order)
+                                @foreach($stats['latestOrders'] as $order)
                                     <tr>
                                         <td>
                                             <a href="{{ route('admin.orders.show', $order) }}">
@@ -132,7 +132,7 @@
                     <h5 class="mb-0">Aksi Cepat</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-grid gap-2">
+                    <!-- {{-- <div class="d-grid gap-2">
                         <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
                             <i class="bi bi-plus-circle me-2"></i> Tambah Produk
                         </a>
@@ -142,7 +142,7 @@
                         <a href="{{ route('admin.reports.sales') }}" class="btn btn-outline-primary">
                             <i class="bi bi-file-earmark-bar-graph me-2"></i> Lihat Laporan
                         </a>
-                    </div>
+                    </div> --}} -->
                 </div>
             </div>
         </div>
