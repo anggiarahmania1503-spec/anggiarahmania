@@ -31,10 +31,10 @@ class Product extends Model
     // decimal:2 -> Angka decimal dengan 2 digit di belakang koma (string di PHP agar akurat)
     // boolean   -> tinyint(1) di DB dikonversi jadi true/false di PHP
     protected $casts = [
-        'price' => 'decimal:2',
+        'price'          => 'decimal:2',
         'discount_price' => 'decimal:2',
-        'is_active' => 'boolean',
-        'is_featured' => 'boolean',
+        'is_active'      => 'boolean',
+        'is_featured'    => 'boolean',
     ];
 
     // ==================== RELATIONSHIPS ====================
@@ -88,8 +88,12 @@ class Product extends Model
 
     public function wishlistedBy(): HasMany
     {
-        return $this->hasMany(Wishlist::class);
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
     }
+
+   
+
 
     // ==================== ACCESSORS ====================
 
@@ -134,8 +138,8 @@ class Product extends Model
     public function getHasDiscountAttribute(): bool
     {
         return $this->discount_price !== null
-            && $this->discount_price > 0
-            && $this->discount_price < $this->price;
+        && $this->discount_price > 0
+        && $this->discount_price < $this->price;
     }
 
     /**
@@ -144,7 +148,7 @@ class Product extends Model
      */
     public function getDiscountPercentageAttribute(): int
     {
-        if (!$this->has_discount) {
+        if (! $this->has_discount) {
             return 0;
         }
 
@@ -168,7 +172,7 @@ class Product extends Model
             return $image->image_url;
         }
 
-        return asset('images/no-product-image.jpg');
+        return asset('images/images.jpg');
     }
 
     /**
@@ -219,14 +223,17 @@ class Product extends Model
     {
         return $query->where(function ($q) use ($keyword) {
             $q->where('name', 'like', "%{$keyword}%")
-              ->orWhere('description', 'like', "%{$keyword}%");
+                ->orWhere('description', 'like', "%{$keyword}%");
         });
     }
 
     // ... Scopes lainnya sama seperti sebelumnya ...
-    public function scopeActive($query) { return $query->where('is_active', true); }
-    public function scopeFeatured($query) { return $query->where('is_featured', true); }
-    public function scopeInStock($query) { return $query->where('stock', '>', 0); }
+    public function scopeActive($query)
+    {return $query->where('is_active', true);}
+    public function scopeFeatured($query)
+    {return $query->where('is_featured', true);}
+    public function scopeInStock($query)
+    {return $query->where('stock', '>', 0);}
 
     public function scopeAvailable($query)
     {
@@ -263,20 +270,20 @@ class Product extends Model
     public function scopeOnSale($query)
     {
         return $query->whereNotNull('discount_price')
-                     ->whereColumn('discount_price', '<', 'price');
+            ->whereColumn('discount_price', '<', 'price');
     }
 
     public function scopeSortBy($query, ?string $sort)
     {
         return match ($sort) {
-            'newest' => $query->latest(),
-            'oldest' => $query->oldest(),
-            'price_asc' => $query->orderBy('price', 'asc'),
+            'newest'     => $query->latest(),
+            'oldest'     => $query->oldest(),
+            'price_asc'  => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
-            'name_asc' => $query->orderBy('name', 'asc'),
-            'name_desc' => $query->orderBy('name', 'desc'),
-            'popular' => $query->withCount('orderItems')->orderByDesc('order_items_count'),
-            default => $query->latest(),
+            'name_asc'   => $query->orderBy('name', 'asc'),
+            'name_desc'  => $query->orderBy('name', 'desc'),
+            'popular'    => $query->withCount('orderItems')->orderByDesc('order_items_count'),
+            default      => $query->latest(),
         };
     }
 
@@ -290,8 +297,8 @@ class Product extends Model
         static::creating(function ($product) {
             if (empty($product->slug)) {
                 $baseSlug = Str::slug($product->name);
-                $slug = $baseSlug;
-                $counter = 1;
+                $slug     = $baseSlug;
+                $counter  = 1;
 
                 // Loop cek apakah slug sudah dipakai?
                 // Jika ya, tambahkan angka (contoh: produk-1, produk-2)

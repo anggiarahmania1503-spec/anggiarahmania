@@ -48,9 +48,9 @@
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="{{ route('wishlist.index') }}">
                             <i class="bi bi-heart"></i>
-                            @if(auth()->user()->wishlists()->count() > 0)
+                            @if(auth()->user()->wishlistProducts()->count() > 0)
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                                    {{ auth()->user()->wishlists()->count() }}
+                                    {{ auth()->user()->wishlistProducts()->count() }}
                                 </span>
                             @endif
                         </a>

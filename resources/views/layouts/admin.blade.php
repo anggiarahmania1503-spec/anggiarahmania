@@ -18,7 +18,7 @@
     <style>
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+            background: linear-gradient(180deg, #1e3a5fff 0%, #0f172a 100%);
         }
         .sidebar .nav-link {
             color: rgba(255,255,255,0.7);
@@ -90,23 +90,23 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a href="#"
                            class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                             <i class="bi bi-people me-2"></i> Pengguna
                         </a>
-                    </li>
+                    </li> -->
 
                     <li class="nav-item mt-3">
                         <span class="nav-link text-muted small text-uppercase">Laporan</span>
                     </li>
 
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a href="#"
                            class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
                             <i class="bi bi-graph-up me-2"></i> Laporan Penjualan
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </nav>
 

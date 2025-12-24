@@ -1,20 +1,23 @@
 <?php
-// app/Models/User.php
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
+
 class User extends Authenticatable
 {
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * Kolom yang boleh diisi secara mass-assignment.
-     * Ini mencegah vulnerability mass-assignment.
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -28,7 +31,9 @@ class User extends Authenticatable
     ];
 
     /**
-     * Kolom yang disembunyikan saat serialisasi ke JSON/array.
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -36,7 +41,9 @@ class User extends Authenticatable
     ];
 
     /**
-     * Casting tipe data otomatis.
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -46,12 +53,7 @@ class User extends Authenticatable
         ];
     }
 
-    // ==================== RELATIONSHIPS ====================
-
-    /**
-     * User memiliki satu keranjang aktif.
-     */
-    public function cart()
+     public function cart()
     {
         return $this->hasOne(Cart::class);
     }
@@ -59,10 +61,7 @@ class User extends Authenticatable
     /**
      * User memiliki banyak item wishlist.
      */
-    public function wishlists()
-    {
-        return $this->hasMany(Wishlist::class);
-    }
+   
 
     /**
      * User memiliki banyak pesanan.
@@ -76,11 +75,10 @@ class User extends Authenticatable
      * Relasi many-to-many ke products melalui wishlists.
      */
     public function wishlistProducts()
-    {
-        return $this->belongsToMany(Product::class, 'wishlists')
-                    ->withTimestamps();
-    }
-
+{
+    return $this->belongsToMany(Product::class, 'wishlists')
+        ->withTimestamps();
+}
     // ==================== HELPER METHODS ====================
 
     /**
@@ -104,10 +102,11 @@ class User extends Authenticatable
      */
     public function hasInWishlist(Product $product): bool
     {
-        return $this->wishlists()
+        return $this->wishlistProducts()
                     ->where('product_id', $product->id)
                     ->exists();
     }
+
     public function getAvatarUrlAttribute(): string
 {
     // Prioritas 1: Avatar yang di-upload (file fisik ada di server)
@@ -148,4 +147,6 @@ public function getInitialsAttribute(): string
     // Ambil maksimal 2 huruf pertama saja
     return substr($initials, 0, 2);
 }
+
+
 }
