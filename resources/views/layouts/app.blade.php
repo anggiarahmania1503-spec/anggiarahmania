@@ -4,7 +4,7 @@
      ================================================ --}}
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,6 +25,9 @@
 
     {{-- Vite CSS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+     @vite(['resources/css/app.css', 'resources/js/app.js']) {{-- Stack untuk
+    script tambahan dari child view --}} @stack('scripts')
 
     {{-- Stack untuk CSS tambahan per halaman --}}
     @stack('styles')

@@ -6,40 +6,38 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-      Schema::create('orders', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained();
-    $table->string('order_number')->unique(); // ID unik, misal ORD-20231201-001
+        // Pastikan ini 'orders', bukan 'order_items'
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('order_number', 50)->unique();
+            $table->decimal('total_amount', 15, 2);
+            $table->decimal('shipping_cost', 12, 2)->default(0);
 
-    // Status Pesanan
-    $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            // Status utama pesanan
+            $table->enum('status', [
+                'pending', 'processing', 'shipped', 'delivered', 'cancelled'
+            ])->default('pending');
 
-    // Status Pembayaran (PENTING: tambahkan ini)
-    $table->enum('payment_status', ['unpaid', 'paid', 'failed'])->default('unpaid');
+            // Status pembayaran
+            $table->string('payment_status')->default('unpaid'); 
 
-    // Informasi Pengiriman
-    $table->string('shipping_name');
-    $table->string('shipping_address');
-    $table->string('shipping_phone');
+            // Data pengiriman
+            $table->string('shipping_name');
+            $table->string('shipping_phone', 20);
+            $table->text('shipping_address');
 
-    // Total & Biaya
-    $table->decimal('total_amount', 12, 2);
-    $table->decimal('shipping_cost', 12, 2)->default(0);
+            $table->string('payment_method')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
 
-    // Midtrans Snap Token
-    $table->string('snap_token')->nullable();
-
-    $table->timestamps();
-});
+            // Indexing
+            $table->index('order_number');
+        });
     }
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::dropIfExists('orders');

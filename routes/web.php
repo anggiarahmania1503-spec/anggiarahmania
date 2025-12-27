@@ -19,6 +19,9 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use Illuminate\Support\Facades\Route;
+use App\Services\MidtransService;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MidtransNotificationController;
 
 // ================================================
 // HALAMAN PUBLIK (Tanpa Login)
@@ -46,6 +49,15 @@ Route::controller(GoogleController::class)->group(function () {
     // ================================================
     Route::get('/auth/google/callback', 'callback')
         ->name('auth.google.callback');
+
+        Route::post('/logout', function () {
+    Auth::logout();
+
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect()->route('home');
+})->name('logout');
 });
 
 // Katalog Produk
@@ -120,4 +132,21 @@ Route::middleware('auth')->group(function() {
 // ================================================
 // AUTH ROUTES (dari Laravel UI)
 // ================================================
-Auth::routes();
+
+// routes/web.php (HAPUS SETELAH TESTING!)
+
+
+Route::middleware('auth')->group(function () {
+    // ... routes lainnya
+
+    // Payment Routes
+    Route::get('/orders/{order}/pay', [PaymentController::class, 'show'])
+        ->name('orders.pay');
+    Route::get('/orders/{order}/success', [PaymentController::class, 'success'])
+        ->name('orders.success');
+    Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])
+        ->name('orders.pending');
+});
+
+Route::post('midtrans/notification', [MidtransNotificationController::class, 'handle'])
+    ->name('midtrans.notification');
