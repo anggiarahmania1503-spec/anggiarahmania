@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,44 +11,36 @@ class Order extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
         'order_number',
-        'status',         // pending, confirmed, processing, shipped, completed, cancelled
-        'payment_status', // unpaid, paid, failed, refunded
+        'status',
+        'payment_status',
         'shipping_name',
         'shipping_address',
         'shipping_phone',
         'total_amount',
+        'shipping_cost',
+        'payment_method',
+        'notes',
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * CASTS
+     * ⚠️ total_amount & shipping_cost JANGAN decimal
      */
     protected $casts = [
-        'total_amount' => 'decimal:2',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'total_amount'  => 'integer',
+        'shipping_cost' => 'integer',
+        'created_at'    => 'datetime',
+        'updated_at'    => 'datetime',
     ];
 
-    /**
-     * Relasi ke User (pemilik order)
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi ke Order Items (detail order)
-     */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);

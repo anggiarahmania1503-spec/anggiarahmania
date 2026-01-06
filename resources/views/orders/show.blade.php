@@ -65,14 +65,15 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="d-grid gap-2 text-center">
-                        @if($order->status === 'pending' && isset($snapToken))
-                            <div class="alert alert-info border-0 small mb-3">
-                                Silakan selesaikan pembayaran agar pesanan segera diproses.
-                            </div>
-                            <button id="pay-button" class="btn btn-primary btn-lg shadow-sm py-3 fw-bold" style="border-radius: 10px;">
-                                💳 Bayar Sekarang
-                            </button>
-                        @endif
+                       @if($order->payment_status !== 'paid')
+    <button 
+        class="btn btn-primary mt-3"
+        id="pay-button"
+        data-order-id="{{ $order->id }}">
+        Bayar Sekarang
+    </button>
+@endif
+
                         <a href="{{ url('/') }}" class="btn btn-link text-decoration-none text-muted mt-2">
                             &larr; Kembali ke Beranda
                         </a>
@@ -84,37 +85,52 @@
 </div>
 
 {{-- Script Midtrans --}}
-@if(isset($snapToken) && $order->status === 'pending')
-    @push('scripts')
-        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-        <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                const payButton = document.getElementById('pay-button');
-                if (payButton) {
-                    payButton.addEventListener('click', function() {
-                        payButton.disabled = true;
-                        payButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+@if($order->payment_status !== 'paid')
+@push('scripts')
+<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
 
-                        window.snap.pay('{{ $snapToken }}', {
-                            onSuccess: function(result) {
-                                window.location.href = "{{ route('orders.show', $order) }}?status=success";
-                            },
-                            onPending: function(result) {
-                                window.location.href = "{{ route('orders.show', $order) }}?status=pending";
-                            },
-                            onError: function(result) {
-                                alert("Pembayaran gagal!");
-                                location.reload();
-                            },
-                            onClose: function() {
-                                payButton.disabled = false;
-                                payButton.innerHTML = '💳 Bayar Sekarang';
-                            }
-                        });
-                    });
-                }
-            });
-        </script>
-    @endpush
+<script>
+document.getElementById('pay-button')?.addEventListener('click', function () {
+    const orderId = this.getAttribute('data-order-id');
+    
+    fetch("{{ route('payment.snap', $order) }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.token) {
+            alert(data.error ?? 'Gagal mendapatkan token');
+            return;
+        }
+
+        snap.pay(data.token, {
+            onSuccess: function (result) {
+                window.location.href = "/orders/" + orderId + "/success";
+            },
+            onPending: function (result) {
+                window.location.href = "/orders/" + orderId + "/pending";
+            },
+            onError: function () {
+                alert('Pembayaran gagal');
+            },
+            onClose: function () {
+                alert('Pembayaran dibatalkan');
+            }
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Terjadi kesalahan');
+    });
+});
+</script>
+@endpush
+
 @endif
+
 @endsection

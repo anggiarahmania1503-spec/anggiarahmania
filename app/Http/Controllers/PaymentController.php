@@ -15,27 +15,51 @@ class PaymentController extends Controller
      */
     public function getSnapToken(Order $order, MidtransService $midtransService)
     {
-        // 1. Authorization: Pastikan user adalah pemilik order
         if ($order->user_id !== auth()->id()) {
             abort(403);
         }
 
-        // 2. Cek apakah order sudah dibayar
         if ($order->payment_status === 'paid') {
             return response()->json(['error' => 'Pesanan sudah dibayar.'], 400);
         }
 
-        try {
-            // 3. Generate Snap Token dari Midtrans
-            $snapToken = $midtransService->createSnapToken($order);
+        // PERBAIKAN: Jika sudah punya token di database, kirimkan yang sudah ada
+        if ($order->snap_token) {
+            return response()->json(['token' => $order->snap_token]);
+        }
 
-            // 4. Simpan token ke database untuk referensi
+        try {
+            $snapToken = $midtransService->createSnapToken($order);
             $order->update(['snap_token' => $snapToken]);
 
-            // 5. Kirim token ke frontend
             return response()->json(['token' => $snapToken]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Menampilkan halaman success setelah pembayaran berhasil
+     */
+    public function success(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('orders.success', compact('order'));
+    }
+
+    /**
+     * Menampilkan halaman pending saat pembayaran masih diproses
+     */
+    public function pending(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $payment_url = request()->query('payment_url');
+        return view('orders.pending', compact('order', 'payment_url'));
     }
 }

@@ -8,20 +8,21 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use Illuminate\Support\Facades\Route;
-use App\Services\MidtransService;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Services\MidtransService;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 // ================================================
 // HALAMAN PUBLIK (Tanpa Login)
@@ -49,21 +50,14 @@ Route::controller(GoogleController::class)->group(function () {
     // ================================================
     Route::get('/auth/google/callback', 'callback')
         ->name('auth.google.callback');
-
-        Route::post('/logout', function () {
-    Auth::logout();
-
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-
-    return redirect()->route('home');
-})->name('logout');
 });
-
 // Katalog Produk
 Route::get('/products', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 
+Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])
+    ->middleware('auth')
+    ->name('wishlist.toggle');
 
 // ================================================
 // HALAMAN YANG BUTUH LOGIN (Customer)
@@ -84,9 +78,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
-    // Pesanan Saya
+   // Pesanan Saya
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Payment Routes
+    Route::get('/orders/{order}/success', [PaymentController::class, 'success'])
+        ->name('orders.success');
+
+    Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])
+        ->name('orders.pending');
+
+    Route::post('/payment/snap/{order}', [PaymentController::class, 'getSnapToken'])
+        ->name('payment.snap');
 
     // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -94,59 +98,26 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-// ================================================
-// HALAMAN ADMIN (Butuh Login + Role Admin)
-// ================================================
-
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-
-    // Produk CRUD
-    Route::resource('products', AdminProductController::class);
-
-    // Kategori CRUD
-    Route::resource('categories', AdminCategoryController::class);
-
-    // Manajemen Pesanan
-    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
-    
-});
-
-Route::resource('categories', CategoryController::class)->except(['show']); // Kategori biasanya tidak butuh show detail page
-
-// Produk
-Route::resource('products', ProductController::class);
-
-Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
-Route::get('/product/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
+// routes/web.php
+// routes/web.php
+Route::post('/midtrans/webhook', [MidtransNotificationController::class, 'handle']);
 
 
-Route::middleware('auth')->group(function() {
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-});
-// ================================================
-// AUTH ROUTES (dari Laravel UI)
-// ================================================
-
-// routes/web.php (HAPUS SETELAH TESTING!)
-
-
-Route::middleware('auth')->group(function () {
-    // ... routes lainnya
-
-    // Payment Routes
-    Route::get('/orders/{order}/pay', [PaymentController::class, 'show'])
-        ->name('orders.pay');
-    Route::get('/orders/{order}/success', [PaymentController::class, 'success'])
-        ->name('orders.success');
-    Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])
-        ->name('orders.pending');
-});
-
+// ============================================================
+// MIDTRANS WEBHOOK
+// Route ini HARUS public (tanpa auth middleware)
+// Karena diakses oleh SERVER Midtrans, bukan browser user
+// ============================================================
 Route::post('midtrans/notification', [MidtransNotificationController::class, 'handle'])
     ->name('midtrans.notification');
+Auth::routes();
+
+// Pastikan hanya ada satu blok admin seperti ini
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // Memanggil DashboardController, bukan AdminController
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Route admin lainnya
+    Route::resource('products', AdminProductController::class);
+    Route::resource('categories', AdminCategoryController::class);
+});

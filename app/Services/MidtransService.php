@@ -43,9 +43,9 @@ class MidtransService
         // 1. Transaction Details (WAJIB)
         // 'gross_amount' HARUS integer (Rupiah tidak ada sen di Midtrans).
         // Jangan kirim float/string pecahan!
-        $transactionDetails = [
-            'order_id'     => $order->order_number, // ID Unik Order
-            'gross_amount' => (int) $order->total_amount,
+       $transactionDetails = [
+            'order_id'     => $order->order_number . '-' . time(), 
+            'gross_amount' => (int) round($order->total_amount),
         ];
 
         // 2. Customer Details (Opsional tapi Recommended)

@@ -13,8 +13,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('order_number', 50)->unique();
-            $table->decimal('total_amount', 15, 2);
-            $table->decimal('shipping_cost', 12, 2)->default(0);
+           $table->integer('total_amount');
+            $table->integer('shipping_cost')->default(0);
 
             // Status utama pesanan
             $table->enum('status', [

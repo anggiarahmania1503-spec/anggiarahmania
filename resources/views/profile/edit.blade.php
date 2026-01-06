@@ -1,6 +1,6 @@
 {{-- resources/views/profile/edit.blade.php --}}
 
-@extends('components.app')
+@extends('layouts.app')
 
 @section('content')
 <div class="container">

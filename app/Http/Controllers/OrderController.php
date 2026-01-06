@@ -1,40 +1,49 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Midtrans\Config; // Harus di sini (Luar Class)
+use Midtrans\Snap;   // Harus di sini (Luar Class)
 
 class OrderController extends Controller
 {
-    /**
-     * Menampilkan detail satu order milik user yang login
-     */
-    public function show(Order $order)
+
+    public function index()
+{
+    $orders = Order::where('user_id', auth()->id())
+        ->latest()
+        ->paginate(10);
+    
+    // Hapus tanda komentar di bawah ini hanya untuk cek data:
+    //dd($orders->first()->toArray()); 
+
+    return view('orders.index', compact('orders'));
+}
+
+    public function __construct()
     {
-        // Authorization: pastikan order milik user yang sedang login
-        if ($order->user_id !== auth()->id()) {
-            abort(403, 'Akses ditolak. Ini bukan order Anda.');
-        }
-
-        // Eager load relasi items beserta product (untuk tampilkan nama, harga snapshot, dll)
-        $order->load(['items.product']);
-
-        // Opsional: jika ingin tampilkan total yang sudah dihitung ulang (untuk verifikasi)
-        // $order->calculated_total = $order->items->sum('subtotal');
-
-        return view('orders.show', compact('order'));
+        // Set konfigurasi Midtrans
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = config('midtrans.is_sanitized');
+        Config::$is3ds = config('midtrans.is_3ds');
     }
 
-    /**
-     * Opsional: Daftar semua order user (history)
-     */
-    public function index()
+  public function show(Order $order)
     {
-        $orders = auth()->user()
-            ->orders()
-            ->with('items') // cukup items saja jika tidak butuh detail product
-            ->latest()
-            ->paginate(10);
+        // 1. Authorize (Security Check)
+        // User A TIDAK BOLEH melihat pesanan User B.
+        // Kita cek apakah ID pemilik order sama dengan ID user yang login.
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
+        }
 
-        return view('orders.index', compact('orders'));
+        // 2. Load relasi detail
+        // Kita butuh data items dan gambar produknya untuk ditampilkan di invoice view.
+        $order->load(['items.product', 'items.product.primaryImage']);
+
+        return view('orders.show', compact('order'));
     }
 }
