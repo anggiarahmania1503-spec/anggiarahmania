@@ -47,31 +47,56 @@ class DashboardController extends Controller
 
         // 3. Produk Terlaris
         // Tantangan: Menghitung total qty terjual dari tabel relasi (order_items)
-        // Solusi: withCount dengan query modifikasi (SUM quantity)
-        $topProducts = Product::withCount(['orderItems as sold' => function ($q) {
-                // Kita hanya hitung item yang berasal dari order yang SUDAH DIBAYAR (paid)
-                $q->select(DB::raw('SUM(quantity)'))
-                  ->whereHas('order', function($query) {
-                      $query->where('payment_status', 'paid');
-                  });
-            }])
-            ->having('sold', '>', 0) // Filter: Hanya tampilkan yang pernah terjual
-            ->orderByDesc('sold')    // Urutkan dari yang paling laku
+        // Solusi: JOIN dengan subquery untuk data
+        $topProducts = DB::table('products')
+            ->select('products.id', 'products.name', DB::raw('COALESCE(SUM(order_items.quantity), 0) as sold'))
+            ->selectRaw('COALESCE(product_images.image_path, "/assets/images/no-image.png") as image_url')
+            ->leftJoin('order_items', 'order_items.product_id', '=', 'products.id')
+            ->leftJoin('orders', function($join) {
+                $join->on('orders.id', '=', 'order_items.order_id');
+            })
+            ->leftJoin('product_images', function($join) {
+                $join->on('product_images.product_id', '=', 'products.id')
+                     ->where('product_images.is_primary', '=', true);
+            })
+            ->groupBy('products.id', 'products.name', 'product_images.image_path')
+            ->having('sold', '>', 0)
+            ->orderByDesc('sold')
             ->take(5)
             ->get();
 
         // 4. Data Grafik Pendapatan (7 Hari Terakhir)
         // Kasus: Grouping data per tanggal
         // Kita gunakan DB::raw untuk format tanggal dari timestamp 'created_at'
+        $startDate = now()->subDays(6)->startOfDay();
+        
         $revenueChart = Order::select([
                 DB::raw('DATE(created_at) as date'), // Ambil tanggalnya saja (2024-12-10)
                 DB::raw('SUM(total_amount) as total') // Total omset hari itu
             ])
-            ->where('payment_status', 'paid')
-            ->where('created_at', '>=', now()->subDays(7)) // Filter 7 hari ke belakang
+            ->where('created_at', '>=', $startDate)
             ->groupBy('date') // Kelompokkan baris berdasarkan tanggal
             ->orderBy('date', 'asc') // Urutkan kronologis
             ->get();
+        
+        // Jika tidak ada data, buat data dummy 7 hari terakhir dengan nilai 0
+        if ($revenueChart->isEmpty()) {
+            $revenueChart = collect();
+            for ($i = 6; $i >= 0; $i--) {
+                $revenueChart->push((object)[
+                    'date' => now()->subDays($i)->format('Y-m-d'),
+                    'total' => 0
+                ]);
+            }
+        }
+        
+        // Format data untuk Chart.js
+        $revenueChart = $revenueChart->map(function($item) {
+            return [
+                'date' => \Carbon\Carbon::createFromFormat('Y-m-d', $item->date)->format('d/m'),
+                'total' => (float) $item->total
+            ];
+        });
 
         return view('admin.dashboard', compact('stats', 'recentOrders', 'topProducts', 'revenueChart'));
     }

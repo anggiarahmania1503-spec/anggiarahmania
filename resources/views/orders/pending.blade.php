@@ -6,24 +6,33 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card text-center">
+            <div class="card border-0 shadow-sm text-center p-4">
                 <div class="card-body">
-                    <h1 class="display-4 text-warning">Pembayaran Tertunda</h1>
-                    <p class="lead">Pembayaran Anda sedang diproses atau menunggu konfirmasi. Silakan tunggu beberapa saat atau coba langkah di bawah ini.</p>
+                    {{-- Ikon Visual --}}
+                    <div class="mb-4">
+                        <i class="bi bi-clock-history text-warning" style="font-size: 5rem;"></i>
+                    </div>
 
-                    @if(isset($order))
-                        <p><strong>Nomor Pesanan:</strong> {{ $order->id }}</p>
-                        <p><strong>Total:</strong> Rp {{ number_format($order->total ?? $order->grand_total ?? 0, 0, ',', '.') }}</p>
-                        <p><strong>Status:</strong> <span class="badge bg-warning text-dark">Pending</span></p>
-                    @endif
+                    <h1 class="fw-bold text-dark">Pembayaran Tertunda</h1>
+                    <p class="text-muted lead">Pesanan Anda telah kami terima, namun kami masih menunggu konfirmasi pembayaran Anda.</p>
 
-                    <div class="mt-4">
+                    <hr class="my-4" style="border-top: 2px dashed #dee2e6;">
+
+                    {{-- Bagian nomor pesanan, total, dan status sudah dihapus --}}
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
                         @if(!empty($payment_url))
-                            <a href="{{ $payment_url }}" target="_blank" class="btn btn-primary">Lanjutkan Pembayaran</a>
+                            <a href="{{ $payment_url }}" target="_blank" class="btn btn-warning btn-lg px-4 fw-bold">
+                                <i class="bi bi-wallet2 me-2"></i>Bayar Sekarang
+                            </a>
                         @elseif(isset($order))
-                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary">Cek Pesanan</a>
+                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-lg px-4">
+                                <i class="bi bi-search me-2"></i>Cek Detail Pesanan
+                            </a>
                         @endif
-                        <a href="{{ url('/') }}" class="btn btn-secondary">Kembali ke Beranda</a>
+                        <a href="{{ url('/') }}" class="btn btn-outline-secondary btn-lg px-4">
+                            Kembali ke Beranda
+                        </a>
                     </div>
                 </div>
             </div>

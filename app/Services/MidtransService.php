@@ -4,10 +4,10 @@
 namespace App\Services;
 
 use App\Models\Order;
+use Exception;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Transaction;
-use Exception;
 
 class MidtransService
 {
@@ -30,7 +30,15 @@ class MidtransService
      * @return string Snap Token
      * @throws Exception Jika gagal membuat token
      */
-    public function createSnapToken(Order $order): string
+    /**
+     * Create snap token and use a unique Midtrans order_id (to avoid duplicates)
+     * Returns array with 'token' and 'midtrans_order_id'.
+     *
+     * @param Order $order
+     * @return array|string snap token string (backwards compatible) or array
+     * @throws Exception
+     */
+    public function createSnapToken(Order $order)
     {
         // Validasi order
         if ($order->items->isEmpty()) {
@@ -43,18 +51,21 @@ class MidtransService
         // 1. Transaction Details (WAJIB)
         // 'gross_amount' HARUS integer (Rupiah tidak ada sen di Midtrans).
         // Jangan kirim float/string pecahan!
-       $transactionDetails = [
-            'order_id'     => $order->order_number . '-' . time(), 
-            'gross_amount' => (int) round($order->total_amount),
+        // Make Midtrans order_id unique by appending order id + uniqid
+        $midtransOrderId = $order->order_number . '-' . $order->id . '-' . uniqid();
+
+        $transactionDetails = [
+            'order_id'     => $midtransOrderId,
+            'gross_amount' => (int) $order->total_amount,
         ];
 
         // 2. Customer Details (Opsional tapi Recommended)
         // Agar data user otomatis terisi di sistem Midtrans (email struk, dll)
         $customerDetails = [
-            'first_name' => $order->user->name,
-            'email'      => $order->user->email,
-            'phone'      => $order->shipping_phone ?? $order->user->phone ?? '',
-            'billing_address' => [
+            'first_name'       => $order->user->name,
+            'email'            => $order->user->email,
+            'phone'            => $order->shipping_phone ?? $order->user->phone ?? '',
+            'billing_address'  => [
                 'first_name' => $order->shipping_name,
                 'phone'      => $order->shipping_phone,
                 'address'    => $order->shipping_address,
@@ -97,7 +108,12 @@ class MidtransService
         // 5. Request Snap Token ke Server Midtrans
         try {
             $snapToken = Snap::getSnapToken($params);
-            return $snapToken;
+            // Return both token and the generated Midtrans order id so callers
+            // can keep track if needed.
+            return [
+                'token' => $snapToken,
+                'midtrans_order_id' => $midtransOrderId,
+            ];
         } catch (Exception $e) {
             // Log error untuk debugging di 'storage/logs/laravel.log'
             logger()->error('Midtrans Snap Token Error', [

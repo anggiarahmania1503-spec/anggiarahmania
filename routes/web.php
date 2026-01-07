@@ -20,6 +20,7 @@ use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\PaymentCallbackController;
 use App\Services\MidtransService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -120,4 +121,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Route admin lainnya
     Route::resource('products', AdminProductController::class);
     Route::resource('categories', AdminCategoryController::class);
+    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::resource('orders', AdminOrderController::class);
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/sales', [\App\Http\Controllers\Admin\ReportController::class, 'sales'])->name('sales');
+        Route::get('/sales/export', [\App\Http\Controllers\Admin\ReportController::class, 'exportSales'])->name('export-sales');
+    });
+    
+    
+Route::post('/midtrans/callback', [PaymentCallbackController::class, 'handle']);
+
 });

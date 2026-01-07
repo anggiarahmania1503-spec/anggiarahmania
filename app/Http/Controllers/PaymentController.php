@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Payment;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
 
@@ -25,12 +26,38 @@ class PaymentController extends Controller
 
         // PERBAIKAN: Jika sudah punya token di database, kirimkan yang sudah ada
         if ($order->snap_token) {
+            // Pastikan record Payment ada juga (idempotent)
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'snap_token'  => $order->snap_token,
+                    'gross_amount'=> $order->total_amount,
+                    'status'      => 'pending',
+                ]
+            );
+
             return response()->json(['token' => $order->snap_token]);
         }
 
         try {
-            $snapToken = $midtransService->createSnapToken($order);
+            $response = $midtransService->createSnapToken($order);
+
+            // Handle both array dan string format
+            $snapToken = is_array($response) ? $response['token'] : $response;
+            $midtransOrderId = is_array($response) ? ($response['midtrans_order_id'] ?? null) : null;
+
+            // Update order and payment record
             $order->update(['snap_token' => $snapToken]);
+
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'midtrans_order_id' => $midtransOrderId,
+                    'snap_token'        => $snapToken,
+                    'gross_amount'      => $order->total_amount,
+                    'status'            => 'pending',
+                ]
+            );
 
             return response()->json(['token' => $snapToken]);
         } catch (\Exception $e) {

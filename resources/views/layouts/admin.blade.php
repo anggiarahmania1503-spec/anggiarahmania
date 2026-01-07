@@ -97,31 +97,28 @@
                         </a>
                     </li> -->
 
-                    <li class="nav-item mt-3">
-                        <span class="nav-link text-muted small text-uppercase">Laporan</span>
-                    </li>
-
-                    <!-- <li class="nav-item">
-                        <a href="#"
+                    <li class="nav-item">
+                        <a href="{{ route('admin.reports.sales') }}"
                            class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
                             <i class="bi bi-graph-up me-2"></i> Laporan Penjualan
                         </a>
-                    </li> -->
+                    </li> 
                 </ul>
             </nav>
 
-            {{-- User Info --}}
-            <div class="p-3 border-top border-secondary">
+           {{-- User Info --}}
+           <a href="{{ route('profile.edit') }}"><div class="p-3 border-top border-secondary">
                 <div class="d-flex align-items-center text-white">
                     <img src="{{ auth()->user()->avatar_url }}"
                          class="rounded-circle me-2" width="36" height="36">
                     <div class="flex-grow-1">
                         <div class="small fw-medium">{{ auth()->user()->name }}</div>
-                        <div class="small text-muted">Administrator</div>
+                        <div class="small text-white">Administrator</div>
                     </div>
                 </div>
             </div>
         </div>
+        </a>
 
         {{-- Main Content --}}
         <div class="flex-grow-1">

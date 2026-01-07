@@ -18,10 +18,8 @@ return new class extends Migration
 
             // Status utama pesanan
             $table->enum('status', [
-                'pending', 'processing', 'shipped', 'delivered', 'cancelled'
-            ])->default('pending');
-
-            // Status pembayaran
+                'pending', 'processing', 'completed', 'cancelled'
+            ])->default('pending');            // Status pembayaran
             $table->string('payment_status')->default('unpaid'); 
 
             // Data pengiriman

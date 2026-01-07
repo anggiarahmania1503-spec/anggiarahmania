@@ -67,7 +67,17 @@ private function setSuccess(Order $order)
         }
 
         // 5. Cari order (PAKAI order_number)
-        $order = Order::where('order_number', $orderId)->first();
+        // Midtrans `order_id` may include a suffix we generated when creating Snap,
+        // e.g. "ORD-XXXX-123-605f3a...". Try exact match first, then fall back
+        // to extracting the base order number (before first dash).
+        $searchOrderNumber = $orderId;
+        if (is_string($orderId) && str_contains($orderId, '-')) {
+            $searchOrderNumber = explode('-', $orderId)[0];
+        }
+
+        $order = Order::where('order_number', $orderId)
+            ->orWhere('order_number', $searchOrderNumber)
+            ->first();
 
         if (!$order) {
             Log::warning('Midtrans Notification: Order not found', [
@@ -146,7 +156,8 @@ private function setSuccess(Order $order)
         Log::info("Payment SUCCESS for Order {$order->order_number}");
 
         $order->update([
-            'status' => 'processing',
+            'status' => 'completed',
+            'payment_status' => 'paid',
         ]);
 
         if ($payment) {
