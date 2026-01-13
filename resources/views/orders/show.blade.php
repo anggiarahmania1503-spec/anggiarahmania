@@ -1,17 +1,25 @@
 @extends('layouts.app')
 
+@section('title', 'Detail Pesanan')
+
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm border-0" style="border-radius: 15px;">
-                {{-- Header Detail Pesanan --}}
+            {{-- Card Utama --}}
+            <div class="card shadow-sm border-0" style="border-radius: 20px; box-shadow: 0 18px 40px rgba(0,0,0,0.08);">
+                
+                {{-- Header --}}
                 <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
                     <h4 class="mb-0 fw-bold text-dark">Detail Pesanan #{{ $order->order_number }}</h4>
-                    <span class="badge rounded-pill 
-                        @if($order->status == 'pending') bg-warning text-dark 
-                        @elseif($order->status == 'success') bg-success 
-                        @else bg-secondary @endif px-3 py-2">
+                    <span class="badge rounded-pill px-3 py-2"
+                        @if($order->status == 'pending') 
+                            style="background: #fbbf24; color: #1e1e1e;"
+                        @elseif($order->status == 'success') 
+                            style="background: linear-gradient(135deg, #3B6181, #5a8fb9); color: white;"
+                        @else 
+                            style="background: #6b7280; color: white;"
+                        @endif>
                         {{ strtoupper($order->status) }}
                     </span>
                 </div>
@@ -19,6 +27,7 @@
                 <div class="card-body p-4">
                     <p class="text-muted small mb-4">Dipesan pada: {{ $order->created_at->format('d M Y, H:i') }}</p>
 
+                    {{-- Produk --}}
                     <h6 class="fw-bold mb-3">Produk yang Dipesan</h6>
                     <div class="table-responsive mb-4">
                         <table class="table align-middle">
@@ -56,7 +65,7 @@
                     </div>
 
                     {{-- Alamat Pengiriman --}}
-                    <div class="bg-light p-3 rounded-3 mb-4">
+                    <div class="bg-white bg-opacity-90 p-4 rounded-4 mb-4" style="backdrop-filter: blur(14px); box-shadow: 0 12px 24px rgba(0,0,0,0.06);">
                         <h6 class="fw-bold mb-2">Alamat Pengiriman</h6>
                         <p class="mb-1 fw-semibold">{{ $order->shipping_name }}</p>
                         <p class="mb-1 text-muted">{{ $order->shipping_phone }}</p>
@@ -65,17 +74,20 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="d-grid gap-2 text-center">
-                       @if($order->payment_status !== 'paid')
-    <button 
-        class="btn btn-primary mt-3"
-        id="pay-button"
-        data-order-id="{{ $order->id }}">
-        Bayar Sekarang
-    </button>
-@endif
+                        @if($order->payment_status !== 'paid')
+                            <button 
+                                class="btn btn-lg rounded-pill"
+                                style="background: linear-gradient(135deg, #3B6181, #5a8fb9); color: white; font-weight: 600;"
+                                id="pay-button"
+                                data-order-id="{{ $order->id }}">
+                                Bayar Sekarang
+                            </button>
+                        @endif
 
-                        <a href="{{ url('/') }}" class="btn btn-link text-decoration-none text-muted mt-2">
-                            &larr; Kembali ke Beranda
+                        <a href="{{ url('/') }}" 
+                           class="btn btn-outline-secondary btn-lg px-4 rounded-pill mt-2"
+                           style="border-color:#cbd5e1; color:#3B6181;">
+                           &larr; Kembali ke Beranda
                         </a>
                     </div>
                 </div>
@@ -130,7 +142,6 @@ document.getElementById('pay-button')?.addEventListener('click', function () {
 });
 </script>
 @endpush
-
 @endif
 
 @endsection

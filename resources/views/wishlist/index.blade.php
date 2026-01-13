@@ -1,5 +1,3 @@
-{{-- resources/views/wishlist/index.blade.php --}}
-
 @extends('layouts.app')
 
 @section('title', 'Wishlist Saya')
@@ -21,13 +19,17 @@
             {{ $products->links() }}
         </div>
     @else
-        <div class="text-center py-5 bg-light rounded-3 shadow-sm">
+        <div class="text-center py-5" 
+             style="background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 20px; box-shadow: 0 12px 30px rgba(0,0,0,.08);">
             <div class="mb-3">
                 <i class="bi bi-heart text-secondary" style="font-size: 4rem;"></i>
             </div>
             <h3 class="h5 fw-medium text-dark">Wishlist Kosong</h3>
             <p class="text-muted mt-1">Simpan produk yang kamu suka di sini.</p>
-            <a href="{{ route('catalog.index') }}" class="btn btn-primary mt-3 px-4">
+            <a href="{{ route('catalog.index') }}" 
+               class="btn btn-primary"
+               style="border-radius: 999px; padding: 10px 28px; font-weight: 600;
+                      background: linear-gradient(135deg, #3B6181, #5a8fb9); color: white;">
                 Mulai Belanja
             </a>
         </div>

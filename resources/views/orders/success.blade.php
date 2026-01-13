@@ -8,13 +8,13 @@
         <div class="col-md-7">
             {{-- Card Utama dengan Shadow yang halus --}}
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                {{-- Header dengan Warna Cerah --}}
-                <div class="card-header bg-success bg-gradient py-4 text-center border-0">
+                {{-- Header dengan Gradasi Premium --}}
+                <div class="card-header text-center border-0"
+                     style="background: linear-gradient(135deg, #3B6181, #5a8fb9); color: white; padding: 2.5rem 1rem;">
                     <div class="mb-3">
-                        {{-- Icon Checkmark Besar --}}
-                        <i class="bi bi-check-circle-fill text-white" style="font-size: 4rem;"></i>
+                        <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
                     </div>
-                    <h2 class="text-white fw-bold">Pembayaran Berhasil!</h2>
+                    <h2 class="fw-bold">Pembayaran Berhasil!</h2>
                 </div>
 
                 <div class="card-body p-4 p-md-5 text-center">
@@ -23,8 +23,9 @@
                     </p>
 
                     @if(isset($order))
-                        {{-- Detail Pesanan dalam Box Terpisah --}}
-                        <div class="bg-light rounded-3 p-4 mb-4 text-start">
+                        {{-- Detail Pesanan --}}
+                        <div class="rounded-3 p-4 mb-4 text-start"
+                             style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
                             <h5 class="fw-bold mb-3 border-bottom pb-2">Detail Transaksi</h5>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-secondary">Nomor Pesanan</span>
@@ -51,11 +52,15 @@
                     {{-- Tombol Aksi --}}
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-2">
                         @if(isset($order))
-                            <a href="{{ route('orders.index', $order->id) }}" class="btn btn-primary btn-lg px-4 rounded-pill">
+                            <a href="{{ route('orders.index', $order->id) }}" 
+                               class="btn btn-lg px-4 rounded-pill"
+                               style="background: linear-gradient(135deg, #3B6181, #5a8fb9); color: white; font-weight: 600;">
                                 <i class="bi bi-box-seam me-2"></i>Cek Status Pesanan
                             </a>
                         @endif
-                        <a href="{{ url('/') }}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill">
+                        <a href="{{ url('/') }}" 
+                           class="btn btn-lg px-4 rounded-pill"
+                           style="background: #f8fafc; border: 1px solid #cbd5e1; color: #3B6181; font-weight: 600;">
                             <i class="bi bi-house me-2"></i>Beranda
                         </a>
                     </div>

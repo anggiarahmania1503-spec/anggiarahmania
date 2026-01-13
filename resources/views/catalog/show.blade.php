@@ -1,14 +1,10 @@
-{{-- ================================================
-     FILE: resources/views/catalog/show.blade.php
-     FUNGSI: Halaman detail produk
-     ================================================ --}}
-
 @extends('layouts.app')
 
 @section('title', $product->name)
 
 @section('content')
 <div class="container py-4">
+
     {{-- Breadcrumb --}}
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
@@ -23,16 +19,13 @@
         </ol>
     </nav>
 
-    <div class="row">
+    <div class="row g-4">
         {{-- Product Images --}}
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow-sm">
-                {{-- Main Image --}}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="position-relative">
-                    <img src="{{ $product->image_url }}"
-                         id="main-image"
-                         class="card-img-top"
-                         alt="{{ $product->name }}"
+                    <img src="{{ $product->image_url }}" id="main-image" 
+                         class="card-img-top" alt="{{ $product->name }}" 
                          style="height: 400px; object-fit: contain; background: #f8f9fa;">
 
                     @if($product->has_discount)
@@ -42,29 +35,28 @@
                     @endif
                 </div>
 
-                {{-- Thumbnail Gallery --}}
                 @if($product->images->count() > 1)
-                    <div class="card-body">
-                        <div class="d-flex gap-2 overflow-auto">
-                            @foreach($product->images as $image)
-                                <img src="{{ asset('storage/' . $image->image_path) }}"
-                                     class="rounded border cursor-pointer"
-                                     style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                                     onclick="document.getElementById('main-image').src = this.src">
-                            @endforeach
-                        </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2 overflow-auto">
+                        @foreach($product->images as $image)
+                            <img src="{{ asset('storage/' . $image->image_path) }}" 
+                                 class="rounded border cursor-pointer" 
+                                 style="width: 80px; height: 80px; object-fit: cover;" 
+                                 onclick="document.getElementById('main-image').src = this.src">
+                        @endforeach
                     </div>
+                </div>
                 @endif
             </div>
         </div>
 
         {{-- Product Info --}}
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-body">
                     {{-- Category --}}
                     <a href="{{ route('catalog.index', ['category' => $product->category->slug]) }}"
-                       class="badge bg-light text-dark text-decoration-none mb-2">
+                       class="badge bg-light text-dark mb-2 text-decoration-none">
                         {{ $product->category->name }}
                     </a>
 
@@ -100,11 +92,10 @@
                         @endif
                     </div>
 
-                    {{-- Add to Cart Form --}}
+                    {{-- Add to Cart --}}
                     <form action="{{ route('cart.add') }}" method="POST" class="mb-4">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-
                         <div class="row g-3 align-items-end">
                             <div class="col-auto">
                                 <label class="form-label">Jumlah</label>
@@ -121,8 +112,7 @@
                             <div class="col">
                                 <button type="submit" class="btn btn-primary btn-lg w-100"
                                         @if($product->stock == 0) disabled @endif>
-                                    <i class="bi bi-cart-plus me-2"></i>
-                                    Tambah ke Keranjang
+                                    <i class="bi bi-cart-plus me-2"></i> Tambah ke Keranjang
                                 </button>
                             </div>
                         </div>
@@ -130,14 +120,13 @@
 
                     {{-- Wishlist --}}
                     @auth
-                   <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST">
+                    <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-outline-danger mb-4">
                             <i class="bi {{ auth()->user()->hasInWishlist($product) ? 'bi-heart-fill' : 'bi-heart' }} me-2"></i>
                             {{ auth()->user()->hasInWishlist($product) ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist' }}
                         </button>
                     </form>
-
                     @endauth
 
                     <hr>
@@ -164,19 +153,16 @@
 
 @push('scripts')
 <script>
-    function incrementQty() {
-        const input = document.getElementById('quantity');
-        const max = parseInt(input.max);
-        if (parseInt(input.value) < max) {
-            input.value = parseInt(input.value) + 1;
-        }
-    }
-    function decrementQty() {
-        const input = document.getElementById('quantity');
-        if (parseInt(input.value) > 1) {
-            input.value = parseInt(input.value) - 1;
-        }
-    }
+function incrementQty() {
+    const input = document.getElementById('quantity');
+    const max = parseInt(input.max);
+    if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
+}
+function decrementQty() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+}
 </script>
 @endpush
+
 @endsection

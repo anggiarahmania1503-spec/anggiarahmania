@@ -5,23 +5,59 @@
 @section('content')
 
 <style>
-    /* Style kamu tetap sama, saya tidak ubah */
     body { background: #f4f6f9; }
     .checkout-container { margin-top: 110px; padding-bottom: 100px; }
     .section-title { font-weight: 700; font-size: 1.9rem; letter-spacing: -.5px; }
-    .soft-card { background: #ffffff; border-radius: 20px; padding: 24px; box-shadow: 0 12px 35px rgba(0,0,0,.06); border: 1px solid #f1f1f1; }
+    
+    .soft-card {
+        background: #ffffff; 
+        border-radius: 20px; 
+        padding: 24px; 
+        box-shadow: 0 12px 35px rgba(0,0,0,.06); 
+        border: 1px solid #f1f1f1; 
+        transition: 0.3s;
+    }
+    .soft-card:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,0,0,.08); }
     .soft-card + .soft-card { margin-top: 20px; }
+
     .label { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
     .form-control { border-radius: 14px; padding: 14px 16px; border: 1px solid #e5e7eb; }
     .form-control:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.2); }
+
     .checkout-summary { position: sticky; top: 110px; }
+
     .product-row { display: flex; justify-content: space-between; margin-bottom: 14px; }
     .product-row small { color: #6b7280; }
-    .total-box { background: linear-gradient(135deg, #ecfdf5, #f0fdf4); padding: 16px; border-radius: 14px; font-weight: bold; font-size: 1.1rem; }
-    .checkout-btn { background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: white; padding: 16px; font-weight: 600; border-radius: 14px; transition: .3s; }
-    .checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(34,197,94,.4); }
+
+    .total-box { background: linear-gradient(135deg, #ecfdf5, #d1fae5); padding: 16px; border-radius: 14px; font-weight: bold; font-size: 1.1rem; }
+
+    .checkout-btn { 
+        background: linear-gradient(135deg, #22c55e, #16a34a); 
+        border: none; 
+        color: white; 
+        padding: 16px; 
+        font-weight: 600; 
+        border-radius: 14px; 
+        transition: .3s; 
+    }
+    .checkout-btn:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 12px 30px rgba(34,197,94,.4); 
+    }
+
     .fade-in { animation: fade .5s ease; }
     @keyframes fade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Flash Alert Konsisten */
+    .flash-alert { border-radius: 18px; padding: 16px 20px; box-shadow: 0 12px 30px rgba(0,0,0,.08); display: flex; gap: 12px; align-items: flex-start; }
+    .flash-success { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #065f46; }
+    .flash-error { background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #7f1d1d; }
+    .flash-info { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1e3a8a; }
+    .flash-alert .icon-wrap { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+    .flash-success .icon-wrap { background: #10b981; color: #fff; }
+    .flash-error .icon-wrap { background: #ef4444; color: #fff; }
+    .flash-info .icon-wrap { background: #3b82f6; color: #fff; }
+
 </style>
 
 <div class="container checkout-container fade-in">
@@ -37,10 +73,8 @@
         $total = $subtotal + $shipping;
     @endphp
 
-    <!-- TAMBAHAN: Form dengan method POST dan CSRF -->
     <form action="{{ route('checkout.store') }}" method="POST">
         @csrf
-
         <div class="row g-4">
 
             <!-- LEFT -->
@@ -116,7 +150,6 @@
                         </div>
                     </div>
 
-                    <!-- Button sekarang berada di dalam form, jadi bisa submit -->
                     <button type="submit" class="checkout-btn w-100 mt-4">
                         🔒 Buat Pesanan
                     </button>
@@ -130,7 +163,6 @@
 
         </div>
     </form>
-    <!-- AKHIR FORM -->
 
 </div>
 

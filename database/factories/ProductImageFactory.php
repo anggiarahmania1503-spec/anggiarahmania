@@ -1,60 +1,38 @@
 <?php
-// database/factories/ProductFactory.php
 
 namespace Database\Factories;
 
-use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
-class ProductFactory extends Factory
+// Nama class HARUS ProductImageFactory agar sesuai dengan nama filenya
+class ProductImageFactory extends Factory
 {
+    /**
+     * Nama model yang terkait dengan factory ini.
+     */
+    protected $model = ProductImage::class;
+
     /**
      * Define the model's default state.
      */
     public function definition(): array
     {
-        $name = fake()->words(rand(2, 5), true);
-        $price = fake()->numberBetween(10000, 5000000);
-
-        // 30% kemungkinan punya diskon
-        $discountPrice = fake()->optional(0.3)->numberBetween(
-            (int)($price * 0.5),  // min 50% dari harga
-            (int)($price * 0.9)   // max 90% dari harga
-        );
-
         return [
-            'category_id' => Category::inRandomOrder()->first()?->id ?? 1,
-            'name' => ucwords($name),
-            'slug' => Str::slug($name) . '-' . fake()->unique()->randomNumber(5),
-            'description' => fake()->paragraphs(rand(2, 4), true),
-            'price' => $price,
-            'discount_price' => $discountPrice,
-            'stock' => fake()->numberBetween(0, 100),
-            'weight' => fake()->numberBetween(100, 5000),
-            'is_active' => fake()->boolean(90),    // 90% aktif
-            'is_featured' => fake()->boolean(15),   // 15% featured
+            // Ganti 'product_id' sesuai dengan foreign key di tabel product_images Anda
+            'product_id' => \App\Models\Product::factory(), 
+            'image_path' => 'products/' . fake()->image(null, 640, 480, 'fashion', false),
+            'is_primary' => false,
         ];
     }
 
     /**
-     * State untuk produk featured.
+     * State untuk gambar utama.
      */
-    public function featured(): static
+    public function primary(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_featured' => true,
-            'is_active' => true,
-        ]);
-    }
-
-    /**
-     * State untuk produk out of stock.
-     */
-    public function outOfStock(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'stock' => 0,
+            'is_primary' => true,
         ]);
     }
 }

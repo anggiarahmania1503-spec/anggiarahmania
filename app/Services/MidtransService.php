@@ -1,5 +1,4 @@
 <?php
-// app/Services/MidtransService.php
 
 namespace App\Services;
 
@@ -12,7 +11,7 @@ use Midtrans\Transaction;
 class MidtransService
 {
     /**
-     * Constructor: Inisialisasi konfigurasi Midtrans.
+     * Inisialisasi konfigurasi Midtrans dari file config/midtrans.php
      */
     public function __construct()
     {
@@ -23,72 +22,44 @@ class MidtransService
     }
 
     /**
-     * Membuat Snap Token untuk order tertentu.
-     * Snap Token adalah "kunci" yang dipakai frontend untuk menampilkan popup pembayaran.
-     *
-     * @param Order $order Order yang akan dibayar
-     * @return string Snap Token
-     * @throws Exception Jika gagal membuat token
-     */
-    /**
-     * Create snap token and use a unique Midtrans order_id (to avoid duplicates)
-     * Returns array with 'token' and 'midtrans_order_id'.
-     *
-     * @param Order $order
-     * @return array|string snap token string (backwards compatible) or array
-     * @throws Exception
+     * Membuat Snap Token
      */
     public function createSnapToken(Order $order)
     {
-        // Validasi order
         if ($order->items->isEmpty()) {
             throw new Exception('Order tidak memiliki item.');
         }
 
-        // ==================== PARAMETER MIDTRANS SNAP ====================
-        // Dokumentasi: https://docs.midtrans.com/en/snap/integration-guide?id=request-body-json-object
-
-        // 1. Transaction Details (WAJIB)
-        // 'gross_amount' HARUS integer (Rupiah tidak ada sen di Midtrans).
-        // Jangan kirim float/string pecahan!
-        // Make Midtrans order_id unique by appending order id + uniqid
-        $midtransOrderId = $order->order_number . '-' . $order->id . '-' . uniqid();
-
+        /**
+         * PENTING: Format Order ID Midtrans
+         * Kita gabungkan: NOMOR_ORDER - ID_DATABASE - UNIQID
+         * Contoh: ORD-7OK4SHIVT4-15-659b123
+         * Ini supaya Controller bisa melakukan 'explode' dan mendapatkan ID Database (angka 15).
+         */
+        // Di dalam MidtransService.php
+        // Di dalam file MidtransService.php
+        $midtransOrderId = $order->order_number . '-' . $order->id;
         $transactionDetails = [
             'order_id'     => $midtransOrderId,
             'gross_amount' => (int) $order->total_amount,
         ];
 
-        // 2. Customer Details (Opsional tapi Recommended)
-        // Agar data user otomatis terisi di sistem Midtrans (email struk, dll)
         $customerDetails = [
-            'first_name'       => $order->user->name,
-            'email'            => $order->user->email,
-            'phone'            => $order->shipping_phone ?? $order->user->phone ?? '',
-            'billing_address'  => [
-                'first_name' => $order->shipping_name,
-                'phone'      => $order->shipping_phone,
-                'address'    => $order->shipping_address,
-            ],
-            'shipping_address' => [
-                'first_name' => $order->shipping_name,
-                'phone'      => $order->shipping_phone,
-                'address'    => $order->shipping_address,
-            ],
+            'first_name' => $order->user->name,
+            'email'      => $order->user->email,
+            'phone'      => $order->shipping_phone ?? '',
         ];
 
-        // 3. Item Details (Opsional, tapi BAGUS untuk UX)
-        // User bisa lihat detail barang apa saja yang dibayar di halaman Midtrans.
         $itemDetails = $order->items->map(function ($item) {
             return [
                 'id'       => (string) $item->product_id,
-                'price'    => (int) $item->price, // Harga per item (Harus Integer)
+                'price'    => (int) $item->price,
                 'quantity' => (int) $item->quantity,
-                'name'     => substr($item->product_name, 0, 50), // Batasi nama maks 50 char
+                'name'     => substr($item->product_name ?? 'Produk', 0, 50),
             ];
         })->toArray();
 
-        // Tambahkan ongkir sebagai item tersendiri jika ada
+        // Tambahkan ongkir jika ada
         if ($order->shipping_cost > 0) {
             $itemDetails[] = [
                 'id'       => 'SHIPPING',
@@ -98,53 +69,35 @@ class MidtransService
             ];
         }
 
-        // 4. Gabungkan semua parameter
         $params = [
             'transaction_details' => $transactionDetails,
             'customer_details'    => $customerDetails,
             'item_details'        => $itemDetails,
         ];
 
-        // 5. Request Snap Token ke Server Midtrans
         try {
             $snapToken = Snap::getSnapToken($params);
-            // Return both token and the generated Midtrans order id so callers
-            // can keep track if needed.
+            
+            // Kembalikan token DAN ID unik Midtrans agar bisa disimpan di tabel Payment
             return [
                 'token' => $snapToken,
                 'midtrans_order_id' => $midtransOrderId,
             ];
         } catch (Exception $e) {
-            // Log error untuk debugging di 'storage/logs/laravel.log'
-            logger()->error('Midtrans Snap Token Error', [
-                'order_id' => $order->order_number,
-                'error'    => $e->getMessage(),
-            ]);
-            throw new Exception('Gagal membuat transaksi pembayaran: ' . $e->getMessage());
-        }
-    }
-
-    public function checkStatus(string $orderId)
-    {
-        try {
-            return Transaction::status($orderId);
-        } catch (Exception $e) {
-            throw new Exception('Gagal mengecek status: ' . $e->getMessage());
+            logger()->error('Midtrans Snap Error: ' . $e->getMessage());
+            throw new Exception('Gagal membuat transaksi: ' . $e->getMessage());
         }
     }
 
     /**
-     * Membatalkan transaksi di Midtrans.
-     *
-     * @param string $orderId Order ID yang dibatalkan
-     * @return mixed Response dari Midtrans
+     * Mengecek status transaksi ke server Midtrans (Opsional)
      */
-    public function cancelTransaction(string $orderId)
+    public function checkStatus(string $midtransOrderId)
     {
         try {
-            return Transaction::cancel($orderId);
+            return Transaction::status($midtransOrderId);
         } catch (Exception $e) {
-            throw new Exception('Gagal membatalkan transaksi: ' . $e->getMessage());
+            return null;
         }
     }
 }

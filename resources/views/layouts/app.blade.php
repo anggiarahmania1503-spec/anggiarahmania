@@ -31,11 +31,128 @@
 
     {{-- Stack untuk CSS tambahan per halaman --}}
     @stack('styles')
+
+    
 </head>
 <body>
     {{-- ============================================
          NAVBAR
          ============================================ --}}
+         <style>
+          /* ================= NAVBAR GLASS MODERN ================= */
+/* ================= SEARCH BAR GLASS ================= */
+.navbar-glass .input-group {
+    background: rgba(255,255,255,.6);
+    backdrop-filter: blur(12px);
+    border-radius: 999px;
+    padding: 0.15rem;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.7),
+        0 10px 25px rgba(0,0,0,.08);
+}
+
+/* Input */
+.navbar-glass .form-control {
+    border: none;
+    background: transparent;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    box-shadow: none !important;
+}
+
+.navbar-glass .form-control::placeholder {
+    color: rgba(2,6,23,.45);
+}
+
+/* Button search */
+.navbar-glass .input-group .btn {
+    border: none;
+    background: linear-gradient(135deg, #c084fc, #fb7185);
+    color: white;
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    margin-left: 0.25rem;
+    box-shadow: 0 8px 20px rgba(251,113,133,.45);
+    transition: all .35s ease;
+}
+
+.navbar-glass .input-group .btn:hover {
+    transform: scale(1.08);
+}
+
+/* Focus effect */
+.navbar-glass .form-control:focus {
+    outline: none;
+}
+
+
+/* container biar keliatan floating */
+.navbar-glass .container {
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,.75),
+        rgba(255,255,255,.55)
+    );
+    border-radius: 999px;
+    padding: 0.35rem 1.2rem;
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.08),
+        inset 0 0 0 1px rgba(255,255,255,.6);
+}
+
+/* Brand */
+.navbar-glass .navbar-brand {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: -0.6px;
+    color: #020617 !important;
+}
+
+/* Nav link */
+.navbar-glass .nav-link {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #020617 !important;
+    border-radius: 999px;
+    padding: 0.55rem 0.95rem;
+    transition: all .35s ease;
+}
+
+.navbar-glass .nav-link:hover {
+    background: rgba(192,132,252,.18);
+}
+
+/* Icon */
+.navbar-glass .bi {
+    font-size: 1.15rem;
+}
+
+/* Button register */
+.navbar-glass .btn-primary {
+    background: linear-gradient(135deg, #c084fc, #fb7185);
+    border: none;
+    font-weight: 700;
+    padding: 0.55rem 1.25rem;
+    border-radius: 999px;
+}
+
+/* Avatar */
+.navbar-glass img.rounded-circle {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+}
+
+/* Dropdown */
+.navbar-glass .dropdown-menu {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 30px 60px rgba(0,0,0,.15);
+}
+
+         </style>
     @include('profile.partials.navbar')
 
     {{-- ============================================

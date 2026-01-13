@@ -127,14 +127,6 @@
                                             Gambar Utama
                                         </label>
                                     </div>
-
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="delete_images[]"
-                                            value="{{ $image->id }}">
-                                        <label class="form-check-label small text-danger">
-                                            Hapus
-                                        </label>
-                                    </div>
                                 </div>
                             </div>
                         </div>

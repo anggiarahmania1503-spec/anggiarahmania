@@ -1,41 +1,97 @@
-{{-- resources/views/profile/partials/connected-accounts.blade.php --}}
+<style>
+.social-card {
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.08);
+}
 
-<p class="text-muted small">Kelola akun sosial yang terhubung dengan akun kamu.</p>
+.social-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+}
 
-<div class="list-group">
-    {{-- Google Account --}}
-    <div class="list-group-item d-flex justify-content-between align-items-center p-3">
-        <div class="d-flex align-items-center gap-3">
-            {{-- Google Icon --}}
-            <svg class="bi" width="32" height="32" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
+.status-connected {
+    color: #16a34a;
+    font-weight: 600;
+}
 
-            <div>
-                <h6 class="mb-0 fw-bold">Google</h6>
-                @if($user->google_id)
-                    <small class="text-success"><i class="bi bi-check-circle-fill"></i> Terhubung</small>
-                @else
-                    <small class="text-muted">Belum terhubung</small>
-                @endif
-            </div>
+.status-disconnected {
+    color: #64748b;
+}
+
+/* Tombol konsisten dengan Profile/Home */
+.btn-social {
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-social-connect {
+    background: linear-gradient(135deg, #3B6181, #5a8fb9);
+    color: #fff;
+    border: none;
+}
+
+.btn-social-connect:hover {
+    background: linear-gradient(135deg, #5a8fb9, #3B6181);
+    transform: translateY(-2px);
+}
+
+.btn-social-disconnect {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border: none;
+}
+
+.btn-social-disconnect:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+}
+</style>
+
+<div class="social-card d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+        {{-- Google Icon --}}
+        <div class="social-icon">
+            {{-- ... svg icon ... --}}
         </div>
 
+        <div>
+            <h6 class="mb-1 fw-bold">Google</h6>
+            @if($user->google_id)
+                <span class="status-connected">
+                    <i class="bi bi-check-circle-fill me-1"></i> Terhubung
+                </span>
+            @else
+                <span class="status-disconnected">
+                    Belum terhubung
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div>
         @if($user->google_id)
-            <form action="#" method="POST" class="d-inline">
+            <form action="#" method="POST">
                 @csrf
                 @method('DELETE')
                 <button type="submit"
-                        class="btn btn-outline-danger btn-sm"
+                        class="btn btn-social btn-social-disconnect"
                         onclick="return confirm('Putuskan koneksi dengan Google?')">
                     Putuskan
                 </button>
             </form>
         @else
-            <a href="{{ route('auth.google') }}" class="btn btn-outline-primary btn-sm">
+            <a href="{{ route('auth.google') }}"
+               class="btn btn-social btn-social-connect">
                 Hubungkan
             </a>
         @endif

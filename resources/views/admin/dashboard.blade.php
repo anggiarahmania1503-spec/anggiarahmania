@@ -130,25 +130,6 @@
         </div>
     </div>
 
-    {{-- 4. Top Selling Products --}}
-    <div class="card border-0 shadow-sm mt-4">
-        <div class="card-header bg-white py-3">
-            <h5 class="card-title mb-0">Produk Terlaris</h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-4">
-                @foreach($topProducts as $product)
-                    <div class="col-6 col-md-2 text-center">
-                        <div class="card h-100 border-0 hover-shadow transition">
-                            <img src="{{ $product->image_url }}" class="card-img-top rounded mb-2" style="max-height: 100px; object-fit: cover;">
-                            <h6 class="card-title text-truncate" style="font-size: 0.9rem">{{ $product->name }}</h6>
-                            <small class="text-muted">{{ $product->sold }} terjual</small>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
 
     {{-- Script Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

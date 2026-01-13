@@ -3,8 +3,10 @@
 namespace App\Exports;
 
 use App\Models\Order;
+use Maatwebsite\Excel\Concerns\FromArray; // Tambahkan ini
+use Maatwebsite\Excel\Concerns\WithHeadings; // Agar lebih rapi
 
-class SalesReportExport
+class SalesReportExport implements FromArray
 {
     public function __construct(
         protected string $dateFrom,
@@ -12,9 +14,9 @@ class SalesReportExport
     ) {}
 
     /**
-     * Fetch data untuk export
+     * Laravel Excel akan otomatis memanggil fungsi array() ini
      */
-    public function getData()
+    public function array(): array
     {
         $orders = Order::query()
             ->with(['user', 'items'])
@@ -23,17 +25,18 @@ class SalesReportExport
             ->orderBy('created_at', 'asc')
             ->get();
 
-        // Format data dengan headers
+        // Header tabel
         $data = [
             ['No. Order', 'Tanggal Transaksi', 'Nama Customer', 'Email', 'Jumlah Item', 'Total Belanja (Rp)', 'Status']
         ];
 
+        // Isi data
         foreach ($orders as $order) {
             $data[] = [
                 $order->order_number,
                 $order->created_at->format('d/m/Y H:i'),
-                $order->user->name,
-                $order->user->email,
+                $order->user->name ?? 'Guest', // Menghindari error jika user null
+                $order->user->email ?? '-',
                 $order->items->sum('quantity'),
                 $order->total_amount,
                 ucfirst($order->status),
