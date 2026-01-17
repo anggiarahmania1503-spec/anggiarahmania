@@ -17,36 +17,33 @@ class UpdateProductRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      */
-    public function rules(): array
-    {
-        // Ambil ID produk yang sedang diedit
-        $productId = $this->route('product')->id;
+   public function rules(): array
+{
+    // Ambil ID produk yang sedang diedit
+    $productId = $this->route('product')->id;
 
-        return [
-            // Field utama produk - WAJIB ada di sini!
-            'name'            => ['required', 'string', 'max:255', Rule::unique('products')->ignore($productId)],
-            'description'     => ['nullable', 'string'],
-            'price'           => ['required', 'numeric', 'min:0'],
-            'stock'           => ['required', 'integer', 'min:0'],
-            'weight'          => ['required', 'integer', 'min:1'], // jika wajib
-            'category_id'     => ['required', 'exists:categories,id'],
+    return [
+        'name'            => ['required', 'string', 'max:255', Rule::unique('products')->ignore($productId)],
+        'description'     => ['nullable', 'string'],
+        'price'           => ['required', 'numeric', 'min:0'],
+        
+        // TAMBAHKAN BARIS INI AGAR DISKON TERSIMPAN
+        'discount_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'], 
+        
+        'stock'           => ['required', 'integer', 'min:0'],
+        'weight'          => ['required', 'integer', 'min:1'],
+        'category_id'     => ['required', 'exists:categories,id'],
 
-            // Gambar baru (opsional)
-            'images'          => ['nullable', 'array'],
-            'images.*'        => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // max 5MB
-
-            // Gambar yang akan dihapus
-            'delete_images'   => ['nullable', 'array'],
-            'delete_images.*' => ['exists:product_images,id'],
-
-            // Set gambar utama
-            'primary_image'   => ['nullable', 'exists:product_images,id'],
-
-            // Status
-            'is_active'       => ['boolean'],
-            'is_featured'     => ['boolean'],
-        ];
-    }
+        // ... sisa kode lainnya tetap sama
+        'images'          => ['nullable', 'array'],
+        'images.*'        => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
+        'delete_images'   => ['nullable', 'array'],
+        'delete_images.*' => ['exists:product_images,id'],
+        'primary_image'   => ['nullable', 'exists:product_images,id'],
+        'is_active'       => ['boolean'],
+        'is_featured'     => ['boolean'],
+    ];
+}
 
     /**
      * Custom message (opsional)

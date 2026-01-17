@@ -25,25 +25,6 @@
             </div>
         </div>
 
-        {{-- Pending Action Card --}}
-        <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 0.8rem">Perlu Diproses</p>
-                            <h4 class="fw-bold mb-0 text-warning">
-                                {{ $stats['pending_orders'] }}
-                            </h4>
-                        </div>
-                        <div class="bg-warning bg-opacity-10 p-3 rounded">
-                            <i class="bi bi-box-seam text-warning fs-3"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         {{-- Low Stock Card --}}
         <div class="col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">

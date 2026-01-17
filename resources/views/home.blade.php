@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'GadgetMurah - Home')
+@section('title', 'Bajoo - Home')
 
 @section('content')
 
@@ -158,13 +158,10 @@
         <div class="swiper heroSwiper">
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
-                    <img src="images/1.png" class="hero-img">
+                    <img src="images/2.png" class="hero-img">
                 </div>
                 <div class="swiper-slide">
                    <a href="{{ route('catalog.index') }}"><img src="images/1.png" class="hero-img"></a>
-                </div>
-                <div class="swiper-slide">
-                    <img src="images/1.png" class="hero-img">
                 </div>
             </div>
             <div class="swiper-button-next d-none d-md-flex"></div>

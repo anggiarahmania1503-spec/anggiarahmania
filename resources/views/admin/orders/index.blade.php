@@ -43,8 +43,15 @@
                         <tr>
                             <td class="ps-4 fw-bold text-primary">#{{ $order->order_number }}</td>
                             <td>
-                                <div class="fw-bold">{{ $order->user->name }}</div>
-                                <small class="text-muted">{{ $order->user->email }}</small>
+                                {{-- PERBAIKAN: Menggunakan Operator ?? (Null Coalescing) --}}
+                                {{-- 1. Cek nama di tabel Order (Hasil input Checkout Baru) --}}
+                                {{-- 2. Jika kosong, ambil nama dari Akun User (Data Lama) --}}
+                                <div class="fw-bold">
+                                    {{ $order->name ?? $order->user->name ?? 'Guest' }}
+                                </div>
+                                <small class="text-muted">
+                                    {{ $order->email ?? $order->user->email ?? '-' }}
+                                </small>
                             </td>
                             <td>{{ $order->created_at->format('d M Y H:i') }}</td>
                             <td class="fw-bold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
@@ -74,7 +81,7 @@
             </table>
         </div>
     </div>
-    <div class="card-footer bg-white">
+    <div class="card-footer bg-white text-center">
         {{ $orders->links() }}
     </div>
 </div>

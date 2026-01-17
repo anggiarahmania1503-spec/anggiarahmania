@@ -111,7 +111,7 @@
         <a class="navbar-brand d-flex align-items-center"
            href="{{ route('home') }}">
             <i class="bi bi-bag-heart-fill me-2"></i>
-            TokoOnline
+            Bajoo
         </a>
 
         {{-- TOGGLER --}}

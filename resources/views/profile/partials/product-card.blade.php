@@ -184,14 +184,6 @@
         <a href="{{ route('catalog.show', $product->slug) }}">
             <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy">
         </a>
-
-        @auth
-            <button type="button" 
-                    onclick="toggleWishlist({{ $product->id }})" 
-                    class="tkp-wishlist">
-                <i class="bi {{ auth()->user()->hasInWishlist($product) ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
-            </button>
-        @endauth
     </div>
 
     {{-- CONTENT AREA --}}

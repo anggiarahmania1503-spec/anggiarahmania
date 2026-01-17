@@ -26,22 +26,26 @@ class CartController extends Controller
         return view('cart.index', compact('cart'));
     }
 
-    public function add(Request $request)
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1'
-        ]);
+   public function add(Request $request)
+{
+    // Tambahkan 'default' nilai quantity agar tidak kosong jika input Blade gagal
+    $data = $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'quantity'   => 'nullable|integer|min:1' // Ubah jadi nullable agar tidak langsung error
+    ]);
 
-        try {
-            $product = Product::findOrFail($request->product_id);
-            $this->cartService->addProduct($product, $request->quantity);
+    // Jika quantity kosong, otomatis anggap 1
+    $quantity = $request->input('quantity', 1);
 
-            return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+    try {
+        $product = Product::findOrFail($request->product_id);
+        $this->cartService->addProduct($product, $quantity);
+
+        return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+    } catch (\Exception $e) {
+        return back()->with('error', $e->getMessage());
     }
+}
 
     public function update(Request $request, $itemId)
     {

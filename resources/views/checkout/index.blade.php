@@ -29,16 +29,15 @@
     .product-row { display: flex; justify-content: space-between; margin-bottom: 14px; }
     .product-row small { color: #6b7280; }
 
-    .total-box { background: linear-gradient(135deg, #ecfdf5, #d1fae5); padding: 16px; border-radius: 14px; font-weight: bold; font-size: 1.1rem; }
-
     .checkout-btn { 
-        background: linear-gradient(135deg, #22c55e, #16a34a); 
+        background: linear-gradient(135deg, #0e2246, #131843); 
         border: none; 
         color: white; 
         padding: 16px; 
         font-weight: 600; 
         border-radius: 14px; 
         transition: .3s; 
+        cursor: pointer;
     }
     .checkout-btn:hover { 
         transform: translateY(-2px); 
@@ -47,123 +46,94 @@
 
     .fade-in { animation: fade .5s ease; }
     @keyframes fade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Flash Alert Konsisten */
-    .flash-alert { border-radius: 18px; padding: 16px 20px; box-shadow: 0 12px 30px rgba(0,0,0,.08); display: flex; gap: 12px; align-items: flex-start; }
-    .flash-success { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #065f46; }
-    .flash-error { background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #7f1d1d; }
-    .flash-info { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1e3a8a; }
-    .flash-alert .icon-wrap { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
-    .flash-success .icon-wrap { background: #10b981; color: #fff; }
-    .flash-error .icon-wrap { background: #ef4444; color: #fff; }
-    .flash-info .icon-wrap { background: #3b82f6; color: #fff; }
-
 </style>
 
 <div class="container checkout-container fade-in">
 
     <div class="text-center mb-5">
         <h1 class="section-title">Checkout</h1>
-        <p class="text-muted">Lengkapi informasi untuk menyelesaikan pesanan</p>
+        <p class="text-muted">Pastikan data pengiriman sudah benar</p>
     </div>
 
     @php
-        $subtotal = $cart->items->sum(fn($i) => ($i->product?->price ?? 0) * $i->quantity);
-        $shipping = 15000;
-        $total = $subtotal + $shipping;
+        /** * MENGAMBIL TOTAL LANGSUNG DARI DATABASE
+         * Tanpa Ongkir, Tanpa Angka Statis.
+         */
+        $totalTagihan = $cart->items->sum('subtotal');
     @endphp
 
-    <form action="{{ route('checkout.store') }}" method="POST">
+    <form action="{{ route('checkout.store') }}" method="POST" autocomplete="off">
         @csrf
         <div class="row g-4">
 
-            <!-- LEFT -->
+            {{-- BAGIAN FORM: KOSONG TANPA AUTO-FILL DARI PROFIL --}}
             <div class="col-lg-7">
-
                 <div class="soft-card">
                     <h5 class="mb-3 fw-bold">📦 Data Penerima</h5>
-
                     <div class="mb-3">
                         <label class="label">Nama Penerima</label>
-                        <input type="text" name="name" class="form-control" value="{{ old('name', auth()->user()->name ?? '') }}" required>
+                        {{-- Menggunakan value old() saja agar tetap kosong saat pertama buka --}}
+                        <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="Ketik nama lengkap penerima" required>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="label">No. HP</label>
-                            <input type="text" name="phone" class="form-control" value="{{ old('phone', auth()->user()->phone ?? '') }}" required>
+                            <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" placeholder="Contoh: 08123456789" required>
                         </div>
-
                         <div class="col-md-6 mb-3">
                             <label class="label">Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', auth()->user()->email ?? '') }}" required>
+                            <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="nama@email.com" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="soft-card">
                     <h5 class="mb-3 fw-bold">📍 Alamat Pengiriman</h5>
-                    <textarea name="address" class="form-control" rows="4" required>{{ old('address', auth()->user()->address ?? '') }}</textarea>
+                    <textarea name="address" class="form-control" rows="4" placeholder="Alamat lengkap (Jalan, No, RT/RW, Kec, Kota)" required>{{ old('address') }}</textarea>
                 </div>
-
-                <div class="soft-card">
-                    <h5 class="mb-3 fw-bold">📝 Catatan (Opsional)</h5>
-                    <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
-                </div>
-
             </div>
 
-            <!-- RIGHT -->
+            {{-- BAGIAN RINGKASAN: HARGA OTOMATIS DARI ADMIN PANEL --}}
             <div class="col-lg-5">
                 <div class="soft-card checkout-summary">
-
                     <h5 class="fw-bold mb-3">🧾 Ringkasan Pesanan</h5>
 
                     @foreach($cart->items as $item)
                     <div class="product-row">
                         <div>
                             <strong>{{ $item->product->name }}</strong><br>
-                            <small>{{ $item->quantity }} x Rp {{ number_format($item->product->price) }}</small>
+                            {{-- Harga Satuan (Bisa Harga Normal/Diskon sesuai database) --}}
+                            <small>{{ $item->quantity }} x Rp {{ number_format($item->product->display_price, 0, ',', '.') }}</small>
                         </div>
                         <div>
-                            <strong>Rp {{ number_format($item->quantity * $item->product->price) }}</strong>
+                            {{-- Subtotal per item sesuai hitungan di database --}}
+                            <strong>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</strong>
                         </div>
                     </div>
                     @endforeach
 
                     <hr>
 
-                    <div class="d-flex justify-content-between">
-                        <span>Subtotal</span>
-                        <span>Rp {{ number_format($subtotal) }}</span>
+                    {{-- TOTAL AKHIR: TANPA BIAYA TAMBAHAN APAPUN --}}
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-4 p-3 bg-light rounded-3">
+                        <span>Total Tagihan</span>
+                        <span class="text-primary">
+                            Rp {{ number_format($totalTagihan, 0, ',', '.') }}
+                        </span>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <span>Ongkir</span>
-                        <span>Rp {{ number_format($shipping) }}</span>
-                    </div>
-
-                    <div class="total-box mt-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Total</span>
-                            <span>Rp {{ number_format($total) }}</span>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="checkout-btn w-100 mt-4">
-                        🔒 Buat Pesanan
+                    <button type="submit" class="checkout-btn w-100">
+                        🔒 Buat Pesanan Sekarang
                     </button>
 
                     <p class="text-muted text-center mt-3 small">
-                        🔒 Pembayaran aman & terenkripsi
+                        Aman & Terenkripsi
                     </p>
-
                 </div>
             </div>
 
         </div>
     </form>
-
 </div>
 
 @endsection

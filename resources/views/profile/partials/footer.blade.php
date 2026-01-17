@@ -75,7 +75,7 @@
             {{-- Brand --}}
             <div class="col-lg-4 col-md-6">
                 <h5 class="mb-3">
-                    <i class="bi bi-bag-heart-fill me-2 text-white"></i> TokoOnline
+                    <i class="bi bi-bag-heart-fill me-2 text-white"></i> Bajoo
                 </h5>
                 <p class="text-secondary">
                     Toko online seragam & kaos custom. Produksi rapi, harga masuk akal, hasil maksimal.
@@ -87,16 +87,6 @@
                     <a href="#"><i class="bi bi-twitter"></i></a>
                     <a href="#"><i class="bi bi-youtube"></i></a>
                 </div>
-            </div>
-
-            {{-- Menu --}}
-            <div class="col-lg-2 col-md-6">
-                <h6 class="mb-3">Menu</h6>
-                <ul class="list-unstyled">
-                    <li><a href="{{ route('catalog.index') }}">Katalog Produk</a></li>
-                    <li><a href="#">Tentang Kami</a></li>
-                    <li><a href="#">Kontak</a></li>
-                </ul>
             </div>
 
             {{-- Bantuan --}}
@@ -124,11 +114,7 @@
 
         <div class="row align-items-center">
             <div class="col-md-6 text-center text-md-start">
-                <p class="small mb-0">&copy; {{ date('Y') }} TokoOnline — dibuat serius, bukan asal jadi.</p>
-            </div>
-
-            <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                <img src="{{ asset('images/payment-methods.png') }}" alt="Payment Methods" height="30" class="opacity-75">
+                <p class="small mb-0">&copy; {{ date('Y') }} Bajoo — dibuat serius, bukan asal jadi.</p>
             </div>
         </div>
     </div>
